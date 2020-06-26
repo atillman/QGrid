@@ -41,6 +41,8 @@ public struct QGrid<Data, Content>: View
   private let hSpacing: CGFloat
   private let vPadding: CGFloat
   private let hPadding: CGFloat
+  private let vAlignment: VerticalAlignment
+  private let hAlignment: HorizontalAlignment
   private let isScrollable: Bool
   private let showScrollIndicators: Bool
   
@@ -59,6 +61,8 @@ public struct QGrid<Data, Content>: View
   ///     - hSpacing: Horizontal spacing: The distance between each cell in grid's row. If not provided, the default value will be used.
   ///     - vPadding: Vertical padding: The distance between top/bottom edge of the grid and the parent view. If not provided, the default value will be used.
   ///     - hPadding: Horizontal padding: The distance between leading/trailing edge of the grid and the parent view. If not provided, the default value will be used.
+  ///     - vAlignment: Vertical alignment: The alignment of the views within rows in the grid.  If not given the default of center will be used
+  ///     - hAlignment: Vertical alignment: The alignment views within the columns in the grid.  If not given the default of center will be used
   ///     - isScrollable: Boolean that determines whether or not the grid should scroll
   ///     - content: A closure returning the content of the individual cell
   public init(_ data: Data,
@@ -68,6 +72,8 @@ public struct QGrid<Data, Content>: View
               hSpacing: CGFloat = 10,
               vPadding: CGFloat = 10,
               hPadding: CGFloat = 10,
+              vAlignment: VerticalAlignment = .center,
+              hAlignment: HorizontalAlignment = .center,
               isScrollable: Bool = true,
               showScrollIndicators: Bool = false,
               content: @escaping (Data.Element) -> Content) {
@@ -79,6 +85,8 @@ public struct QGrid<Data, Content>: View
     self.hSpacing = hSpacing
     self.vPadding = vPadding
     self.hPadding = hPadding
+    self.vAlignment = vAlignment
+    self.hAlignment = hAlignment
     self.isScrollable = isScrollable
     self.showScrollIndicators = showScrollIndicators
   }
@@ -121,7 +129,7 @@ public struct QGrid<Data, Content>: View
   private func rowAtIndex(_ index: Int,
                           geometry: GeometryProxy,
                           isLastRow: Bool = false) -> some View {
-    HStack(spacing: self.hSpacing) {
+    HStack(alignment: self.vAlignment, spacing: self.hSpacing) {
       ForEach((0..<(isLastRow ? data.count % cols : cols))
       .map { QGridIndex(id: $0) }) { column in
         self.content(self.data[index + column.id])
@@ -132,7 +140,7 @@ public struct QGrid<Data, Content>: View
   }
     
   private func content(using geometry: GeometryProxy) -> some View {
-   VStack(spacing: self.vSpacing) {
+    VStack(alignment: self.hAlignment, spacing: self.vSpacing) {
      ForEach((0..<self.rows).map { QGridIndex(id: $0) }) { row in
        self.rowAtIndex(row.id * self.cols,
                        geometry: geometry)
